@@ -21,7 +21,7 @@ const sections: [string, string][] = [
 
 function Privacy() {
   return (
-    <article className="pt-10">
+    <article className="mx-auto max-w-3xl pt-10">
       <h1 className="text-4xl font-black leading-tight sm:text-5xl text-gradient">Privacy Policy for Paus</h1>
       <p className="mt-3 text-muted-foreground">Last updated October 20, 2026</p>
       {sections.map(([h, t]) => (

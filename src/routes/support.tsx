@@ -16,7 +16,7 @@ const faq = [
 
 function Support() {
   return (
-    <div className="pt-10">
+    <div className="mx-auto max-w-3xl pt-10">
       <h1 className="text-5xl font-black text-gradient">Support</h1>
       <p className="mt-5 text-lg text-muted-foreground">
         Questions, problems or ideas? Email <span className="text-foreground">{EMAIL}</span> and we'll reply as soon as we can.

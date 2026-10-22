@@ -1,37 +1,296 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Pip, meta } from "@/components/Site";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { BarChart3, Check, Flame, Lock, ShieldCheck, Sparkles, Timer, Trophy } from "lucide-react";
+import { APP_STORE_URL, AppStoreBadge, Pip, meta } from "@/components/Site";
 
 export const Route = createFileRoute("/")({
-  head: () => meta("Paus – Take back your time", "Paus blocks the apps that steal your attention – and turns resisting them into a game."),
+  head: () => meta("Paus – Take back your time", "Paus blocks the apps that steal your time and turns focusing into a game. Out now on the App Store."),
   component: Index,
 });
 
+/** Fades its children in the first time they scroll into view. */
+function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; delay?: number; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) {
+        setShown(true);
+        observer.disconnect();
+      }
+    }, { threshold: 0.15 });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <div ref={ref} className={`reveal ${shown ? "revealed" : ""} ${className}`} style={{ transitionDelay: `${delay}ms` }}>
+      {children}
+    </div>
+  );
+}
+
+/** Counts up to `to` once it is on screen. */
+function CountUp({ to, decimals = 0, duration = 1800 }: { to: number; decimals?: number; duration?: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setValue(to);
+      return;
+    }
+    let frame = 0;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry?.isIntersecting) return;
+      observer.disconnect();
+      const start = performance.now();
+      const tick = (now: number) => {
+        const t = Math.min((now - start) / duration, 1);
+        setValue(to * (1 - Math.pow(1 - t, 3)));
+        if (t < 1) frame = requestAnimationFrame(tick);
+      };
+      frame = requestAnimationFrame(tick);
+    }, { threshold: 0.5 });
+    observer.observe(node);
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [to, duration]);
+  return <span ref={ref}>{value.toFixed(decimals)}</span>;
+}
+
+function Blobs() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      <div className="animate-drift absolute -left-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-[#8B5CFF]/30 blur-3xl" />
+      <div className="animate-drift absolute -right-40 top-1/3 h-[30rem] w-[30rem] rounded-full bg-[#FF4FA3]/20 blur-3xl [animation-delay:-6s]" />
+      <div className="animate-drift absolute bottom-0 left-1/4 h-[26rem] w-[26rem] rounded-full bg-[#3CF0B0]/10 blur-3xl [animation-delay:-12s]" />
+    </div>
+  );
+}
+
+const headline = ["Take", "back", "your", "time."];
+
 const features = [
-  ["Focus sessions", "Block distracting apps and stay in the zone."],
-  ["Streaks & rewards", "Earn XP, level up and keep your streak alive."],
-  ["Leagues", "Compete with friends and the whole world."],
-  ["Mindful pauses", "A moment to reflect before you open an app."],
+  { icon: Lock, title: "Block what distracts you", text: "Pick any apps or websites and Pip pauses them – on a schedule, with a daily limit or right now." },
+  { icon: Timer, title: "Focus sessions", text: "Start a session, put the phone down and earn XP for every minute you stay focused." },
+  { icon: Sparkles, title: "Meet Pip", text: "Your little companion cheers when you focus and gets sad when you scroll too much." },
+  { icon: Trophy, title: "Levels & trophies", text: "Climb from Scroll Zombie to Legend, unlock trophies and finish daily quests." },
+  { icon: Flame, title: "Weekly leagues", text: "Compete with friends and players everywhere. Every focused minute counts." },
+  { icon: BarChart3, title: "See your progress", text: "A clear screen time report, widgets and a Live Activity on your Lock Screen." },
 ];
+
+const screens = [
+  ["life-math", "Pip works out how much of your life goes to your phone"],
+  ["levels", "Levels from Scroll Zombie to Legend"],
+  ["lock-screen", "A focus session on the Lock Screen"],
+  ["notification", "A notification from Pip cheering you on"],
+];
+
+const steps = [
+  ["1", "Choose your apps", "Tell Pip which apps steal your time. Paus uses Apple's Screen Time, so it just works."],
+  ["2", "Focus and pause", "Start a focus session or let your schedule do it. Need a break? Take a pause – it has a cost."],
+  ["3", "Level up", "Earn XP, keep your streak and climb the league while your screen time goes down."],
+];
+
+const freeFeatures = ["Block apps and websites", "Focus sessions with XP", "Pip, levels and trophies", "Weekly leagues", "One schedule"];
+const proFeatures = ["Unlimited schedules", "Daily time limits", "Strict focus mode", "Protection against deleting the app", "Personal tips from Pip"];
+
+function Pricing() {
+  const [yearly, setYearly] = useState(true);
+  return (
+    <section id="pricing" className="scroll-mt-24 pt-28">
+      <Reveal className="text-center">
+        <h2 className="text-4xl font-black sm:text-5xl">Choose your <span className="text-gradient">level</span></h2>
+        <p className="mt-4 text-lg text-muted-foreground">Start free. Upgrade when you want more control.</p>
+        <div className="mt-8 inline-flex rounded-full bg-card p-1.5" role="group" aria-label="Billing period">
+          {[["Monthly", false], ["Yearly", true]].map(([label, value]) => (
+            <button
+              key={String(label)}
+              onClick={() => setYearly(value as boolean)}
+              aria-pressed={yearly === value}
+              className={`relative rounded-full px-6 py-2.5 text-sm font-extrabold transition-all duration-300 ${
+                yearly === value ? "bg-gradient-brand text-primary-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {label as string}
+              {value && <span className="ml-2 rounded-full bg-black/25 px-2 py-0.5 text-xs">−37%</span>}
+            </button>
+          ))}
+        </div>
+      </Reveal>
+
+      <div className="mt-12 grid gap-6 md:grid-cols-2">
+        <Reveal delay={100}>
+          <div className="flex h-full flex-col rounded-[2rem] border border-white/10 bg-card/80 p-8 transition duration-300 hover:-translate-y-1">
+            <h3 className="text-2xl font-black">Free</h3>
+            <p className="mt-1 text-muted-foreground">Everything you need to start.</p>
+            <p className="mt-6 text-5xl font-black">0 kr</p>
+            <p className="text-sm text-muted-foreground">forever</p>
+            <ul className="mt-8 flex-1 space-y-3">
+              {freeFeatures.map((f) => (
+                <li key={f} className="flex items-start gap-3"><Check className="mt-0.5 h-5 w-5 shrink-0 text-accent" />{f}</li>
+              ))}
+            </ul>
+            <AppStoreBadge className="mt-8 self-start" />
+          </div>
+        </Reveal>
+
+        <Reveal delay={200}>
+          <div className="relative h-full rounded-[2rem] bg-gradient-moving p-[2px] shadow-[0_20px_80px_-20px_rgba(255,79,163,0.6)] transition duration-300 hover:-translate-y-1">
+            <span className="absolute -top-3.5 left-8 rounded-full bg-gradient-brand px-4 py-1 text-xs font-black uppercase tracking-wider text-primary-foreground">Most popular</span>
+            <div className="flex h-full flex-col rounded-[calc(2rem-2px)] bg-card p-8">
+              <h3 className="text-2xl font-black">Paus <span className="text-gradient">Pro</span></h3>
+              <p className="mt-1 text-muted-foreground">For when you're serious about your time.</p>
+              <div key={String(yearly)} className="animate-pop mt-6">
+                <p className="text-5xl font-black">{yearly ? "219 kr" : "29 kr"}<span className="text-lg font-bold text-muted-foreground">{yearly ? " / year" : " / month"}</span></p>
+                <p className="text-sm text-muted-foreground">{yearly ? "≈ 18 kr a month · save 37%" : "billed monthly"}</p>
+              </div>
+              <p className="mt-6 font-bold">Everything in Free, plus:</p>
+              <ul className="mt-3 flex-1 space-y-3">
+                {proFeatures.map((f) => (
+                  <li key={f} className="flex items-start gap-3"><Check className="mt-0.5 h-5 w-5 shrink-0 text-[#FF4FA3]" />{f}</li>
+                ))}
+              </ul>
+              <a href={APP_STORE_URL} className="mt-8 rounded-full bg-gradient-moving px-7 py-4 text-center font-extrabold text-primary-foreground transition duration-300 hover:scale-[1.02]">
+                Try 7 days free
+              </a>
+              <p className="mt-3 text-center text-xs text-muted-foreground">Then {yearly ? "219 kr/year" : "29 kr/month"}. Cancel anytime in the App Store.</p>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
 
 function Index() {
   return (
-    <div className="pt-8 text-center">
-      <Pip className="mx-auto w-48 sm:w-64" />
-      <h1 className="mt-8 text-5xl font-black leading-tight sm:text-6xl text-gradient">Take back your time</h1>
-      <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
-        Paus blocks the apps that steal your attention – and turns resisting them into a game.
-      </p>
-      <button disabled className="mt-8 cursor-not-allowed rounded-full bg-gradient-brand px-7 py-3.5 font-extrabold text-primary-foreground opacity-80">
-        Coming soon to the App Store
-      </button>
-      <div className="mt-20 grid gap-4 text-left sm:grid-cols-2">
-        {features.map(([t, d]) => (
-          <div key={t} className="rounded-3xl bg-card p-6">
-            <h2 className="text-lg font-extrabold text-accent">{t}</h2>
-            <p className="mt-1 text-muted-foreground">{d}</p>
+    <div id="top">
+      <Blobs />
+
+      {/* Hero */}
+      <section className="pt-10 text-center sm:pt-16">
+        <div className="relative mx-auto w-48 sm:w-60">
+          <div className="absolute inset-4 rounded-full bg-[#3CF0B0]/30 blur-3xl" />
+          <div className="animate-float relative">
+            <Pip className="w-full" />
           </div>
-        ))}
-      </div>
+        </div>
+        <p className="animate-rise mx-auto mt-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-card/70 px-4 py-1.5 text-sm font-bold">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-accent" /> Out now on the App Store
+        </p>
+        <h1 className="mt-6 text-5xl font-black leading-[1.05] sm:text-7xl">
+          {headline.map((word, i) => (
+            <span key={word} className="animate-rise mr-[0.25em] inline-block text-gradient last:mr-0" style={{ animationDelay: `${150 + i * 120}ms` }}>
+              {word}
+            </span>
+          ))}
+        </h1>
+        <p className="animate-rise mx-auto mt-6 max-w-xl text-lg text-muted-foreground sm:text-xl" style={{ animationDelay: "650ms" }}>
+          Paus blocks the apps that steal your time – and turns focusing into a game. With Pip by your side.
+        </p>
+        <div className="animate-rise mt-9 flex flex-col items-center gap-3" style={{ animationDelay: "800ms" }}>
+          <AppStoreBadge />
+          <p className="text-sm text-muted-foreground">Free to download · 7 days of Pro free</p>
+        </div>
+      </section>
+
+      {/* Screens */}
+      <section className="mt-20 -mx-5 overflow-x-auto px-5 pb-6 [scrollbar-width:none]">
+        <div className="mx-auto flex w-max gap-5 sm:w-auto sm:justify-center">
+          {screens.map(([name, alt], i) => (
+            <Reveal key={name} delay={i * 120}>
+              <img
+                src={`/screens/${name}.webp`}
+                alt={alt}
+                width={540}
+                height={1174}
+                loading="lazy"
+                className={`w-52 rounded-[2rem] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.8)] transition duration-500 hover:-translate-y-2 hover:rotate-0 sm:w-56 ${i % 2 ? "sm:translate-y-10 sm:rotate-2" : "sm:-rotate-2"}`}
+              />
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* The math */}
+      <section className="pt-24 text-center">
+        <Reveal>
+          <p className="text-lg font-bold text-muted-foreground">At 5 hours a day, most of us will spend</p>
+          <p className="mt-2 text-7xl font-black text-gradient sm:text-9xl"><CountUp to={18.4} decimals={1} /> years</p>
+          <p className="mt-3 text-lg text-muted-foreground">of our waking life looking at a phone. Paus helps you win some of it back.</p>
+        </Reveal>
+      </section>
+
+      {/* Features */}
+      <section className="pt-28">
+        <Reveal className="text-center">
+          <h2 className="text-4xl font-black sm:text-5xl">Less scrolling. <span className="text-gradient">More living.</span></h2>
+        </Reveal>
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map(({ icon: Icon, title, text }, i) => (
+            <Reveal key={title} delay={(i % 3) * 100}>
+              <div className="group h-full rounded-3xl border border-white/10 bg-card/80 p-7 transition duration-300 hover:-translate-y-1 hover:border-white/25 hover:shadow-[0_20px_60px_-25px_rgba(139,92,255,0.7)]">
+                <div className="inline-flex rounded-2xl bg-gradient-brand p-3 transition duration-300 group-hover:rotate-6 group-hover:scale-110">
+                  <Icon className="h-6 w-6 text-primary-foreground" />
+                </div>
+                <h3 className="mt-5 text-xl font-extrabold">{title}</h3>
+                <p className="mt-2 text-muted-foreground">{text}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="pt-28">
+        <Reveal className="text-center">
+          <h2 className="text-4xl font-black sm:text-5xl">How it works</h2>
+        </Reveal>
+        <div className="mt-12 grid gap-5 md:grid-cols-3">
+          {steps.map(([n, title, text], i) => (
+            <Reveal key={n} delay={i * 150}>
+              <div className="h-full rounded-3xl bg-card/60 p-7">
+                <span className="text-6xl font-black text-gradient">{n}</span>
+                <h3 className="mt-3 text-xl font-extrabold">{title}</h3>
+                <p className="mt-2 text-muted-foreground">{text}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      <Pricing />
+
+      {/* Privacy */}
+      <section className="pt-28">
+        <Reveal>
+          <div className="flex flex-col items-center gap-5 rounded-[2rem] border border-white/10 bg-card/70 p-10 text-center sm:flex-row sm:text-left">
+            <ShieldCheck className="h-14 w-14 shrink-0 text-accent" />
+            <div>
+              <h2 className="text-2xl font-black">Your data stays on your phone</h2>
+              <p className="mt-2 text-muted-foreground">
+                Paus is built on Apple's Screen Time. What you do on your phone never leaves it. No ads, no tracking, no account needed.
+              </p>
+            </div>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* Final call */}
+      <section className="pt-28 text-center">
+        <Reveal>
+          <div className="mx-auto w-28 animate-float"><Pip className="w-full" /></div>
+          <h2 className="mt-6 text-4xl font-black sm:text-5xl">Pip is waiting for you.</h2>
+          <p className="mt-4 text-lg text-muted-foreground">Download Paus and start taking back your time today.</p>
+          <AppStoreBadge className="mt-8" />
+        </Reveal>
+      </section>
     </div>
   );
 }
