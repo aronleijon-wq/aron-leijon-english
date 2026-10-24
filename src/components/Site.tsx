@@ -38,9 +38,42 @@ export function SiteHeader() {
   );
 }
 
+/** Paus on social media. Add LinkedIn or X here when those accounts exist; the footer lays out whatever is listed. */
+const socials: { name: string; href: string; path: string }[] = [
+  {
+    name: "Instagram",
+    href: "https://www.instagram.com/leijonsprivat",
+    path: "M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.6-.1-4.8s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.6-.1 4.8-.1M12 0C8.7 0 8.3 0 7.1.1 5.8.1 4.9.3 4.1.6c-.8.3-1.5.7-2.1 1.4C1.3 2.6.9 3.3.6 4.1.3 4.9.1 5.8.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.1 1.3.3 2.2.6 2.9.3.8.7 1.5 1.4 2.1.6.7 1.3 1.1 2.1 1.4.8.3 1.6.5 2.9.6 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c1.3-.1 2.2-.3 2.9-.6.8-.3 1.5-.7 2.1-1.4.7-.6 1.1-1.3 1.4-2.1.3-.8.5-1.6.6-2.9.1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.1-1.3-.3-2.2-.6-2.9-.3-.8-.7-1.5-1.4-2.1-.6-.7-1.3-1.1-2.1-1.4-.8-.3-1.6-.5-2.9-.6C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.8a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z",
+  },
+  {
+    name: "Facebook",
+    href: "https://www.facebook.com/profile.php?id=61595245918049",
+    path: "M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z",
+  },
+];
+
 export function SiteFooter() {
   return (
-    <footer className="mx-auto mt-24 flex max-w-5xl flex-col items-center gap-3 px-5 pb-10 text-sm text-muted-foreground">
+    <footer className="mx-auto mt-24 flex max-w-5xl flex-col items-center gap-5 px-5 pb-10 text-sm text-muted-foreground">
+      <div className="flex flex-col items-center gap-3">
+        <p className="font-extrabold text-foreground">Follow Paus</p>
+        <div className="flex gap-3">
+          {socials.map(({ name, href, path }) => (
+            <a
+              key={name}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Paus on ${name}`}
+              className="group flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-card transition duration-300 hover:-translate-y-1 hover:border-transparent hover:bg-gradient-brand hover:shadow-[0_12px_30px_-10px_rgba(255,79,163,0.7)]"
+            >
+              <svg viewBox="0 0 24 24" className="h-5 w-5 fill-muted-foreground transition group-hover:fill-white" aria-hidden="true">
+                <path d={path} />
+              </svg>
+            </a>
+          ))}
+        </div>
+      </div>
       <div className="flex gap-5 font-bold">
         <Link to="/support" className="hover:text-foreground">Support</Link>
         <Link to="/privacy" className="hover:text-foreground">Privacy Policy</Link>
