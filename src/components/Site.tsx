@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 export const OWNER = "Aron Leijon";
-export const EMAIL = "aronleijon@icloud.com";
+export const EMAIL = "aron@pausapp.net";
 export const APP_STORE_URL = "https://apps.apple.com/app/id6825835642";
 
 export function Pip({ className = "" }: { className?: string }) {
