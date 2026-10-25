@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { BarChart3, Check, Flame, Lock, ShieldCheck, Sparkles, Timer, Trophy } from "lucide-react";
 import { APP_STORE_URL, AppStoreBadge, Pip, meta } from "@/components/Site";
 import { useLocalPrices } from "@/lib/currency";
+import { NewsletterSignup } from "@/components/Newsletter";
 
 export const Route = createFileRoute("/")({
   head: () => meta("Paus – Take back your time", "Paus blocks the apps that steal your time and turns focusing into a game. Out now on the App Store."),
@@ -286,6 +287,13 @@ function Index() {
               </p>
             </div>
           </div>
+        </Reveal>
+      </section>
+
+      {/* Newsletter */}
+      <section className="pt-28">
+        <Reveal>
+          <NewsletterSignup />
         </Reveal>
       </section>
 
