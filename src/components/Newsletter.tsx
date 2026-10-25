@@ -1,18 +1,12 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Check, Mail } from "lucide-react";
-import { joinNewsletter, newsletterReady } from "@/lib/newsletter";
+import { joinNewsletter } from "@/lib/newsletter";
 
-/** "Join the Paus newsletter", hidden until the server can actually store the address. */
+/** "Join the Paus newsletter" – sign-ups are stored in Lovable Cloud. */
 export function NewsletterSignup() {
-  const [ready, setReady] = useState(false);
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
 
-  useEffect(() => {
-    newsletterReady().then(setReady).catch(() => setReady(false));
-  }, []);
-
-  if (!ready) return null;
 
   async function submit(event: FormEvent) {
     event.preventDefault();
