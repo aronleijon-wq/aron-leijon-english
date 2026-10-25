@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { BarChart3, Check, Flame, Lock, ShieldCheck, Sparkles, Timer, Trophy } from "lucide-react";
 import { APP_STORE_URL, AppStoreBadge, Pip, meta } from "@/components/Site";
+import { useLocalPrices } from "@/lib/currency";
 
 export const Route = createFileRoute("/")({
   head: () => meta("Paus – Take back your time", "Paus blocks the apps that steal your time and turns focusing into a game. Out now on the App Store."),
@@ -102,6 +103,7 @@ const proFeatures = ["Unlimited schedules", "Daily time limits", "Strict focus m
 
 function Pricing() {
   const [yearly, setYearly] = useState(true);
+  const price = useLocalPrices();
   return (
     <section id="pricing" className="scroll-mt-24 pt-28">
       <Reveal className="text-center">
@@ -129,7 +131,7 @@ function Pricing() {
           <div className="flex h-full flex-col rounded-[2rem] border border-white/10 bg-card/80 p-8 transition duration-300 hover:-translate-y-1">
             <h3 className="text-2xl font-black">Free</h3>
             <p className="mt-1 text-muted-foreground">Everything you need to start.</p>
-            <p className="mt-6 text-5xl font-black">0 kr</p>
+            <p className="mt-6 text-5xl font-black">{price.format(0, { approximate: false })}</p>
             <p className="text-sm text-muted-foreground">forever</p>
             <ul className="mt-8 flex-1 space-y-3">
               {freeFeatures.map((f) => (
@@ -147,8 +149,8 @@ function Pricing() {
               <h3 className="text-2xl font-black">Paus <span className="text-gradient">Pro</span></h3>
               <p className="mt-1 text-muted-foreground">For when you're serious about your time.</p>
               <div key={String(yearly)} className="animate-pop mt-6">
-                <p className="text-5xl font-black">{yearly ? "219 kr" : "29 kr"}<span className="text-lg font-bold text-muted-foreground">{yearly ? " / year" : " / month"}</span></p>
-                <p className="text-sm text-muted-foreground">{yearly ? "≈ 18 kr a month · save 37%" : "billed monthly"}</p>
+                <p className="text-5xl font-black">{price.format(yearly ? 219 : 29)}<span className="text-lg font-bold text-muted-foreground">{yearly ? " / year" : " / month"}</span></p>
+                <p className="text-sm text-muted-foreground">{yearly ? `${price.isConverted ? "" : "≈ "}${price.format(219 / 12)} a month · save 37%` : "billed monthly"}</p>
               </div>
               <p className="mt-6 font-bold">Everything in Free, plus:</p>
               <ul className="mt-3 flex-1 space-y-3">
@@ -159,7 +161,12 @@ function Pricing() {
               <a href={APP_STORE_URL} className="mt-8 rounded-full bg-gradient-moving px-7 py-4 text-center font-extrabold text-primary-foreground transition duration-300 hover:scale-[1.02]">
                 Try 7 days free
               </a>
-              <p className="mt-3 text-center text-xs text-muted-foreground">Then {yearly ? "219 kr/year" : "29 kr/month"}. Cancel anytime in the App Store.</p>
+              <p className="mt-3 text-center text-xs text-muted-foreground">Then {price.format(yearly ? 219 : 29)}{yearly ? "/year" : "/month"}. Cancel anytime in the App Store.</p>
+              {price.isConverted && (
+                <p className="mt-1 text-center text-xs text-muted-foreground">
+                  Converted from Swedish kronor. The App Store shows the exact price for your country.
+                </p>
+              )}
             </div>
           </div>
         </Reveal>
