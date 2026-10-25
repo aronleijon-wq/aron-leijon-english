@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-export const OWNER = "Aron Leijon";
+export const OWNER = "Paus App";
 export const EMAIL = "aron@pausapp.net";
 export const APP_STORE_URL = "https://apps.apple.com/app/id6825835642";
 
