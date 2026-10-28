@@ -279,7 +279,6 @@ const benefits = ["Less scrolling", "More sleep", "Better focus", "Real conversa
 const tricks = ["Earn XP", "Keep your streak", "Climb the league", "Walk to unlock", "Strict focus", "Daily limits", "Pip cheers you on", "Unlock trophies"];
 
 function Index() {
-  const availability = useAvailability();
   return (
     <div id="top">
       <Blobs />
@@ -295,10 +294,6 @@ function Index() {
             </div>
           </div>
         </AppOrbit>
-        <p className="animate-rise mx-auto mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-card/70 px-4 py-1.5 text-sm font-bold">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
-          {availability.coming ? `Coming to ${availability.country} very soon` : "Out now on the App Store"}
-        </p>
         <h1 className="mt-6 text-5xl font-black leading-[1.05] sm:text-7xl">
           {headline.map((word, i) => (
             <Fragment key={word}>
