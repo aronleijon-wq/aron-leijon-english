@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 import { BarChart3, Check, Flame, Footprints, Lock, ShieldCheck, Sparkles, Timer, Trophy } from "lucide-react";
 import { APP_STORE_URL, AppStoreBadge, Pip, meta } from "@/components/Site";
+import { AppOrbit, Confetti, Marquee, PipFollow, ScrollProgress, ScrollStory, Tilt } from "@/components/Motion";
 import { useAvailability } from "@/lib/availability";
 import { useLocalPrices } from "@/lib/currency";
 import { NewsletterSignup } from "@/components/Newsletter";
@@ -113,6 +114,7 @@ const proFeatures = ["Step sessions: walk to unlock", "Unlimited schedules", "Da
 
 function Pricing() {
   const [yearly, setYearly] = useState(true);
+  const [burst, setBurst] = useState(0);
   const price = useLocalPrices();
   const availability = useAvailability();
   return (
@@ -120,11 +122,16 @@ function Pricing() {
       <Reveal className="text-center">
         <h2 className="text-4xl font-black sm:text-5xl">Choose your <span className="text-gradient">level</span></h2>
         <p className="mt-4 text-lg text-muted-foreground">Start free. Upgrade when you want more control.</p>
-        <div className="mt-8 inline-flex rounded-full bg-card p-1.5" role="group" aria-label="Billing period">
+        <div className="relative mt-8 inline-flex rounded-full bg-card p-1.5" role="group" aria-label="Billing period">
+          <Confetti burst={burst} />
           {[["Monthly", false], ["Yearly", true]].map(([label, value]) => (
             <button
               key={String(label)}
-              onClick={() => setYearly(value as boolean)}
+              onClick={() => {
+                // A little celebration for picking the better deal.
+                if (value && !yearly) setBurst((n) => n + 1);
+                setYearly(value as boolean);
+              }}
               aria-pressed={yearly === value}
               className={`relative rounded-full px-6 py-2.5 text-sm font-extrabold transition-all duration-300 ${
                 yearly === value ? "bg-gradient-brand text-primary-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"
@@ -252,21 +259,43 @@ function StepSessions() {
   );
 }
 
+/** The share of waking hours that 5 hours a day takes, filling up on screen. */
+function LifeBar() {
+  const [ref, value] = useCountUp<HTMLDivElement>(31, 2000);
+  return (
+    <div ref={ref} className="mx-auto mt-10 max-w-xl text-left">
+      <div className="flex justify-between gap-4 text-sm font-bold text-muted-foreground">
+        <span>Your waking hours</span>
+        <span className="text-foreground">{Math.round(value)}% on your phone</span>
+      </div>
+      <div className="mt-2 h-4 overflow-hidden rounded-full bg-white/10">
+        <div className="h-full rounded-full bg-gradient-brand shadow-[0_0_20px_rgba(255,79,163,0.6)]" style={{ width: `${value}%` }} />
+      </div>
+    </div>
+  );
+}
+
+const benefits = ["Less scrolling", "More sleep", "Better focus", "Real conversations", "Calmer evenings", "Time for friends", "More time outside", "Better grades"];
+const tricks = ["Earn XP", "Keep your streak", "Climb the league", "Walk to unlock", "Strict focus", "Daily limits", "Pip cheers you on", "Unlock trophies"];
+
 function Index() {
   const availability = useAvailability();
   return (
     <div id="top">
       <Blobs />
+      <ScrollProgress />
 
       {/* Hero */}
-      <section className="pt-10 text-center sm:pt-16">
-        <div className="relative mx-auto w-48 sm:w-60">
-          <div className="absolute inset-4 rounded-full bg-[#3CF0B0]/30 blur-3xl" />
-          <div className="animate-float relative">
-            <Pip className="w-full" />
+      <section className="pt-6 text-center sm:pt-12">
+        <AppOrbit>
+          <div className="relative w-40 sm:w-60">
+            <div className="absolute inset-4 rounded-full bg-[#3CF0B0]/30 blur-3xl" />
+            <div className="animate-float relative">
+              <PipFollow />
+            </div>
           </div>
-        </div>
-        <p className="animate-rise mx-auto mt-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-card/70 px-4 py-1.5 text-sm font-bold">
+        </AppOrbit>
+        <p className="animate-rise mx-auto mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-card/70 px-4 py-1.5 text-sm font-bold">
           <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
           {availability.coming ? `Coming to ${availability.country} very soon` : "Out now on the App Store"}
         </p>
@@ -307,16 +336,25 @@ function Index() {
         </div>
       </section>
 
+      <ScrollStory />
+
       {/* The math */}
       <section className="pt-24 text-center">
         <Reveal>
           <p className="text-lg font-bold text-muted-foreground">At 5 hours a day, most of us will spend</p>
           <p className="mt-2 text-7xl font-black text-gradient sm:text-9xl"><CountUp to={18.4} decimals={1} /> years</p>
           <p className="mt-3 text-lg text-muted-foreground">of our waking life looking at a phone. Paus helps you win some of it back.</p>
+          <LifeBar />
         </Reveal>
       </section>
 
       <StepSessions />
+
+      {/* What you get back */}
+      <section className="space-y-3 pt-24">
+        <Marquee items={benefits} />
+        <Marquee items={tricks} reverse />
+      </section>
 
       {/* Features */}
       <section className="pt-28">
@@ -325,14 +363,16 @@ function Index() {
         </Reveal>
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {features.map(({ icon: Icon, title, text }, i) => (
-            <Reveal key={title} delay={(i % 3) * 100}>
-              <div className="group h-full rounded-3xl border border-white/10 bg-card/80 p-7 transition duration-300 hover:-translate-y-1 hover:border-white/25 hover:shadow-[0_20px_60px_-25px_rgba(139,92,255,0.7)]">
-                <div className="inline-flex rounded-2xl bg-gradient-brand p-3 transition duration-300 group-hover:rotate-6 group-hover:scale-110">
-                  <Icon className="h-6 w-6 text-primary-foreground" />
+            <Reveal key={title} delay={(i % 3) * 100} className="h-full">
+              <Tilt>
+                <div className="group h-full rounded-3xl border border-white/10 bg-card/80 p-7 transition duration-300 hover:border-white/25 hover:shadow-[0_20px_60px_-25px_rgba(139,92,255,0.7)]">
+                  <div className="inline-flex rounded-2xl bg-gradient-brand p-3 transition duration-300 group-hover:rotate-6 group-hover:scale-110">
+                    <Icon className="h-6 w-6 text-primary-foreground" />
+                  </div>
+                  <h3 className="mt-5 text-xl font-extrabold">{title}</h3>
+                  <p className="mt-2 text-muted-foreground">{text}</p>
                 </div>
-                <h3 className="mt-5 text-xl font-extrabold">{title}</h3>
-                <p className="mt-2 text-muted-foreground">{text}</p>
-              </div>
+              </Tilt>
             </Reveal>
           ))}
         </div>
@@ -383,7 +423,7 @@ function Index() {
       {/* Final call */}
       <section className="pt-28 text-center">
         <Reveal>
-          <div className="mx-auto w-28 animate-float"><Pip className="w-full" /></div>
+          <div className="mx-auto w-28 animate-float"><PipFollow /></div>
           <h2 className="mt-6 text-4xl font-black sm:text-5xl">Pip is waiting for you.</h2>
           <p className="mt-4 text-lg text-muted-foreground">Download Paus and start taking back your time today.</p>
           <AppStoreBadge className="mt-8" />

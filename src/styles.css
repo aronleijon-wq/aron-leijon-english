@@ -122,7 +122,27 @@
 @utility reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
 @utility revealed { opacity: 1; transform: none; }
 
+/* Apps around Pip getting paused, the doomscrolling phone, marquees, confetti and Pip's speech bubble. */
+@keyframes tile-lock { 0%,52% { opacity: 1; filter: none; transform: scale(1); } 58%,90% { opacity: 0.45; filter: grayscale(1); transform: scale(0.88); } 96%,100% { opacity: 1; filter: none; transform: scale(1); } }
+@keyframes lock-pop { 0%,54% { opacity: 0; transform: scale(0); } 60% { opacity: 1; transform: scale(1.3); } 64%,88% { opacity: 1; transform: scale(1); } 94%,100% { opacity: 0; transform: scale(0); } }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes feed { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+@keyframes confetti { 0% { opacity: 1; transform: translate(0, 0) rotate(0deg); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--r)); } }
+@keyframes bubble { 0% { opacity: 0; transform: translate(-50%, 10px) scale(0.8); } 10% { opacity: 1; transform: translate(-50%, 0) scale(1); } 85% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -8px) scale(1); } }
+@keyframes squish { 0% { transform: scale(1, 1); } 30% { transform: scale(1.15, 0.85); } 55% { transform: scale(0.92, 1.1); } 100% { transform: scale(1, 1); } }
+@utility animate-tile-lock { animation: tile-lock 12s ease-in-out infinite; }
+@utility animate-lock-pop { animation: lock-pop 12s ease-in-out infinite; opacity: 0; }
+@utility animate-marquee { animation: marquee 45s linear infinite; }
+@utility animate-feed { animation: feed 10s linear infinite; }
+@utility animate-confetti { animation: confetti 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) forwards; }
+@utility animate-bubble { animation: bubble 2.6s ease forwards; }
+@utility animate-squish { animation: squish 0.55s ease; transform-origin: 50% 90%; }
+@utility mask-fade-x { mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent); }
+.tilt-glare { background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, 0.14), transparent 45%); opacity: 0; transition: opacity 0.3s ease; }
+.tilt:hover .tilt-glare { opacity: 1; }
+
 @media (prefers-reduced-motion: reduce) {
   .animate-float, .animate-blink, .animate-drift, .animate-rise, .animate-pop, .bg-gradient-moving { animation: none; }
+  .animate-tile-lock, .animate-lock-pop, .animate-marquee, .animate-feed, .animate-confetti, .animate-squish { animation: none; }
   .reveal { opacity: 1; transform: none; transition: none; }
 }
