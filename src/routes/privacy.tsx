@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { EMAIL, OWNER, meta } from "@/components/Site";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => meta("Paus – Privacy Policy", "How Paus handles your data: no account, no ads, no tracking."),
+  head: () => meta("Paus – Privacy Policy", "How Paus handles your data: no ads, no tracking, and almost everything stays on your phone.", "/privacy"),
   component: Privacy,
 });
 

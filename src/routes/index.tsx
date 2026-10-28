@@ -1,12 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { BarChart3, Check, Flame, Lock, ShieldCheck, Sparkles, Timer, Trophy } from "lucide-react";
+import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
+import { BarChart3, Check, Flame, Footprints, Lock, ShieldCheck, Sparkles, Timer, Trophy } from "lucide-react";
 import { APP_STORE_URL, AppStoreBadge, Pip, meta } from "@/components/Site";
+import { useAvailability } from "@/lib/availability";
 import { useLocalPrices } from "@/lib/currency";
 import { NewsletterSignup } from "@/components/Newsletter";
 
 export const Route = createFileRoute("/")({
-  head: () => meta("Paus – Take back your time", "Paus blocks the apps that steal your time and turns focusing into a game. Out now on the App Store."),
+  head: () => meta(
+    "Paus – Take back your time",
+    "Paus blocks the apps that steal your time and turns focusing into a game. New: step sessions that keep your apps locked until you've walked.",
+  ),
   component: Index,
 });
 
@@ -33,9 +37,9 @@ function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; 
   );
 }
 
-/** Counts up to `to` once it is on screen. */
-function CountUp({ to, decimals = 0, duration = 1800 }: { to: number; decimals?: number; duration?: number }) {
-  const ref = useRef<HTMLSpanElement>(null);
+/** Counts from 0 up to `to` the first time the returned ref is on screen. */
+function useCountUp<T extends HTMLElement>(to: number, duration = 1800) {
+  const ref = useRef<T>(null);
   const [value, setValue] = useState(0);
   useEffect(() => {
     const node = ref.current;
@@ -62,6 +66,11 @@ function CountUp({ to, decimals = 0, duration = 1800 }: { to: number; decimals?:
       cancelAnimationFrame(frame);
     };
   }, [to, duration]);
+  return [ref, value] as const;
+}
+
+function CountUp({ to, decimals = 0, duration = 1800 }: { to: number; decimals?: number; duration?: number }) {
+  const [ref, value] = useCountUp<HTMLSpanElement>(to, duration);
   return <span ref={ref}>{value.toFixed(decimals)}</span>;
 }
 
@@ -95,16 +104,17 @@ const screens = [
 
 const steps = [
   ["1", "Choose your apps", "Tell Pip which apps steal your time. Paus uses Apple's Screen Time, so it just works."],
-  ["2", "Focus and pause", "Start a focus session or let your schedule do it. Need a break? Take a pause – it has a cost."],
+  ["2", "Focus and pause", "Start a focus session or a step session, or let your schedule do it. Need a break? Take a pause – it has a cost."],
   ["3", "Level up", "Earn XP, keep your streak and climb the league while your screen time goes down."],
 ];
 
 const freeFeatures = ["Block apps and websites", "Focus sessions with XP", "Pip, levels and trophies", "Weekly leagues", "One schedule"];
-const proFeatures = ["Unlimited schedules", "Daily time limits", "Strict focus mode", "Protection against deleting the app", "Personal tips from Pip"];
+const proFeatures = ["Step sessions: walk to unlock", "Unlimited schedules", "Daily time limits", "Strict focus mode", "Protection against deleting the app", "Personal tips from Pip"];
 
 function Pricing() {
   const [yearly, setYearly] = useState(true);
   const price = useLocalPrices();
+  const availability = useAvailability();
   return (
     <section id="pricing" className="scroll-mt-24 pt-28">
       <Reveal className="text-center">
@@ -159,8 +169,11 @@ function Pricing() {
                   <li key={f} className="flex items-start gap-3"><Check className="mt-0.5 h-5 w-5 shrink-0 text-[#FF4FA3]" />{f}</li>
                 ))}
               </ul>
-              <a href={APP_STORE_URL} className="mt-8 rounded-full bg-gradient-moving px-7 py-4 text-center font-extrabold text-primary-foreground transition duration-300 hover:scale-[1.02]">
-                Try 7 days free
+              <a
+                href={availability.coming ? "/#newsletter" : APP_STORE_URL}
+                className="mt-8 rounded-full bg-gradient-moving px-7 py-4 text-center font-extrabold text-primary-foreground transition duration-300 hover:scale-[1.02]"
+              >
+                {availability.coming ? "Get notified at launch" : "Try 7 days free"}
               </a>
               <p className="mt-3 text-center text-xs text-muted-foreground">Then {price.format(yearly ? 219 : 29)}{yearly ? "/year" : "/month"}. Cancel anytime in the App Store.</p>
               {price.isConverted && (
@@ -176,7 +189,71 @@ function Pricing() {
   );
 }
 
+const STEP_GOAL = 2000;
+
+/** A step session as it shows on the Lock Screen, counting down while it is on screen. */
+function StepSessionCard() {
+  const [ref, walked] = useCountUp<HTMLDivElement>(1450, 2600);
+  const steps = Math.round(walked);
+  const format = (n: number) => n.toLocaleString("en-US");
+  return (
+    <div ref={ref} className="mx-auto w-full max-w-sm rounded-[2.5rem] border border-white/10 bg-[#0b0918] p-4 shadow-[0_30px_80px_-30px_rgba(139,92,255,0.8)] sm:p-5" aria-hidden="true">
+      <p className="text-center text-sm font-bold text-muted-foreground">Thursday, October 29</p>
+      <p className="text-center text-6xl font-black tracking-tight">9:41</p>
+      <div className="mt-6 flex items-center gap-3 rounded-3xl bg-white/10 p-3 backdrop-blur sm:gap-4 sm:p-4">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-brand sm:h-12 sm:w-12">
+          <Pip className="w-8 sm:w-9" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="whitespace-nowrap font-extrabold">Step session</p>
+          <p className="whitespace-nowrap text-xs text-muted-foreground sm:text-sm">{format(steps)} of {format(STEP_GOAL)} steps</p>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
+            <div className="h-full rounded-full bg-gradient-brand" style={{ width: `${(steps / STEP_GOAL) * 100}%` }} />
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-2xl font-black leading-none text-gradient sm:text-3xl">{format(STEP_GOAL - steps)}</p>
+          <p className="whitespace-nowrap text-xs font-bold text-muted-foreground">steps left</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StepSessions() {
+  const points = [
+    "Choose 1,000, 2,000 or 5,000 steps",
+    "No pause button and no way around it",
+    "Steps left right on your Lock Screen",
+    "Your apps unlock by themselves when you're done",
+  ];
+  return (
+    <section className="pt-28">
+      <Reveal>
+        <div className="grid items-center gap-10 rounded-[2rem] border border-white/10 bg-card/70 p-6 sm:p-12 md:grid-cols-2">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full bg-gradient-brand px-3 py-1 text-xs font-black uppercase tracking-wider text-primary-foreground">
+              <Footprints className="h-4 w-4" aria-hidden="true" /> New
+            </span>
+            <h2 className="mt-5 text-4xl font-black sm:text-5xl">Walk to <span className="text-gradient">unlock.</span></h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Start a step session and your apps stay locked until you've walked. Counted by your iPhone and Apple Watch – your steps never leave your phone.
+            </p>
+            <ul className="mt-6 space-y-3">
+              {points.map((point) => (
+                <li key={point} className="flex items-start gap-3"><Check className="mt-0.5 h-5 w-5 shrink-0 text-accent" />{point}</li>
+              ))}
+            </ul>
+          </div>
+          <StepSessionCard />
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
 function Index() {
+  const availability = useAvailability();
   return (
     <div id="top">
       <Blobs />
@@ -190,13 +267,17 @@ function Index() {
           </div>
         </div>
         <p className="animate-rise mx-auto mt-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-card/70 px-4 py-1.5 text-sm font-bold">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-accent" /> Out now on the App Store
+          <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
+          {availability.coming ? `Coming to ${availability.country} very soon` : "Out now on the App Store"}
         </p>
         <h1 className="mt-6 text-5xl font-black leading-[1.05] sm:text-7xl">
           {headline.map((word, i) => (
-            <span key={word} className="animate-rise mr-[0.25em] inline-block text-gradient last:mr-0" style={{ animationDelay: `${150 + i * 120}ms` }}>
-              {word}
-            </span>
+            <Fragment key={word}>
+              {i > 0 && " "}
+              <span className="animate-rise inline-block text-gradient" style={{ animationDelay: `${150 + i * 120}ms` }}>
+                {word}
+              </span>
+            </Fragment>
           ))}
         </h1>
         <p className="animate-rise mx-auto mt-6 max-w-xl text-lg text-muted-foreground sm:text-xl" style={{ animationDelay: "650ms" }}>
@@ -234,6 +315,8 @@ function Index() {
           <p className="mt-3 text-lg text-muted-foreground">of our waking life looking at a phone. Paus helps you win some of it back.</p>
         </Reveal>
       </section>
+
+      <StepSessions />
 
       {/* Features */}
       <section className="pt-28">
@@ -291,7 +374,7 @@ function Index() {
       </section>
 
       {/* Newsletter */}
-      <section className="pt-28">
+      <section id="newsletter" className="scroll-mt-24 pt-28">
         <Reveal>
           <NewsletterSignup />
         </Reveal>

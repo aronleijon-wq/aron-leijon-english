@@ -2,16 +2,21 @@ import { createFileRoute } from "@tanstack/react-router";
 import { EMAIL, meta } from "@/components/Site";
 
 export const Route = createFileRoute("/support")({
-  head: () => meta("Paus – Support", "Get help with Paus: contact us or read the frequently asked questions."),
+  head: () => meta("Paus – Support", "Get help with Paus: contact us or read the frequently asked questions.", "/support"),
   component: Support,
 });
 
 const faq = [
-  ["Why isn't blocking working?", "Make sure Paus has Screen Time access under Settings > Screen Time, and that you've selected apps in the Apps tab."],
+  ["Why isn't blocking working?", "Make sure Paus has Screen Time access under Settings > Screen Time, and that you've chosen apps in the Apps tab."],
+  ["What is a step session?", "A focus session that ends when you've walked a number of steps instead of after a set time. Start one on the Home tab and choose 1,000, 2,000 or 5,000 steps. The apps stay locked until you've walked them – a step session can't be stopped or paused. Step sessions are part of Paus Pro."],
+  ["My steps aren't counted. What do I do?", "Paus needs access to Steps in Health and to Motion & Fitness. Check the Health app (tap your profile picture > Apps > Paus) and Settings > Privacy & Security > Motion & Fitness. During a step session Paus checks your steps every few minutes, and right away when you open the app."],
+  ["Can I get around a block?", "That's the point – it's hard. Pauses cost XP after the first one each day. Strict focus and step sessions can't be stopped or paused, and with Paus Pro you can stop Paus from being deleted while a block is on."],
+  ["Do I need an account?", "No, everything works without one. You can sign in with Apple or with your email if you'd like Pip to greet you by name."],
   ["How do I cancel Paus Pro?", "Settings > [your name] > Subscriptions > Paus Pro."],
-  ["How do I delete my data?", "In the app: Rules > Delete all my data. To only leave the league: League > your nickname > Leave league."],
+  ["How do I delete my account and data?", "In the app: tap the profile button on the Home tab > your name (or My account) > Delete account and all data. To only leave the league: League tab > the profile button > Leave the league and remove my name."],
   ["How do I report an inappropriate nickname?", "Press and hold the name in the leaderboard and choose Report."],
-  ["Does Paus cost anything?", "The basic version is free. Paus Pro costs 29 SEK/month or 219 SEK/year, with a 7-day free trial."],
+  ["Does Paus cost anything?", "The basic version is free. Paus Pro costs 29 SEK/month or 219 SEK/year in Sweden, with a 7-day free trial. The App Store shows the price for your country."],
+  ["Is Paus on Android, or in my country?", "Paus is for iPhone, on iOS 17 or later. If it isn't in your country's App Store yet, join the newsletter on the home page and we'll email you the day it arrives."],
 ];
 
 function Support() {

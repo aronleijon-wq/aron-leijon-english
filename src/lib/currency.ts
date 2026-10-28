@@ -26,7 +26,8 @@ const ZONE_REGION: Record<string, string> = {
   "Pacific/Auckland": "NZ", "America/Toronto": "CA", "America/Vancouver": "CA",
 };
 
-function visitorRegion(): string | undefined {
+/** The visitor's country as a two-letter region code, from the time zone first and the browser language second. */
+export function visitorRegion(): string | undefined {
   const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   if (ZONE_REGION[zone]) return ZONE_REGION[zone];
   if (zone.startsWith("Australia/")) return "AU";

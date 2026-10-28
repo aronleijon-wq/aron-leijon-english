@@ -1,12 +1,13 @@
 import { useState, type FormEvent } from "react";
 import { Check, Mail } from "lucide-react";
+import { useAvailability } from "@/lib/availability";
 import { joinNewsletter } from "@/lib/newsletter";
 
 /** "Join the Paus newsletter" – sign-ups are stored in Lovable Cloud. */
 export function NewsletterSignup() {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
-
+  const availability = useAvailability();
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -24,7 +25,9 @@ export function NewsletterSignup() {
       <Mail className="mx-auto h-10 w-10 text-accent" />
       <h2 className="mt-4 text-3xl font-black">Join the Paus newsletter</h2>
       <p className="mx-auto mt-3 max-w-md text-muted-foreground">
-        Tips to scroll less, and news when Pip learns new tricks. No spam.
+        {availability.coming
+          ? `Paus is coming to ${availability.country} very soon. Leave your email and we'll tell you the day it's out – plus tips to scroll less. No spam.`
+          : "Tips to scroll less, and news when Pip learns new tricks. No spam."}
       </p>
       {state === "done" ? (
         <p className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent/15 px-5 py-3 font-bold text-accent">
@@ -47,7 +50,7 @@ export function NewsletterSignup() {
             disabled={state === "sending"}
             className="rounded-full bg-gradient-moving px-7 py-3.5 font-extrabold text-primary-foreground transition duration-300 hover:scale-[1.03] disabled:opacity-60"
           >
-            {state === "sending" ? "Joining…" : "Notify me"}
+            {state === "sending" ? "Joining…" : availability.coming ? "Notify me" : "Subscribe"}
           </button>
         </form>
       )}
