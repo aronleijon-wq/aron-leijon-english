@@ -6,7 +6,7 @@ export const Route = createFileRoute("/i/$code")({
   head: ({ params }) =>
     meta(
       "You're invited to Paus",
-      "A friend invited you to Paus, the app blocker with Pip. Add their code and you both get 5 days of Pro for free.",
+      "A friend invited you to Paus, the app blocker with Pip. Add their code and compete in the weekly league.",
       `/i/${params.code}`,
     ),
   component: Invite,
@@ -33,8 +33,8 @@ function Invite() {
       <Pip className="mx-auto h-28 w-32" />
       <h1 className="mt-6 text-4xl font-black text-gradient sm:text-5xl">You're invited to Paus</h1>
       <p className="mt-4 text-lg text-muted-foreground">
-        A friend wants to scroll less with you. Add their code in the app and you both get{" "}
-        <span className="font-bold text-foreground">5 days of Pro for free</span>.
+        A friend wants to scroll less with you. Add their code in the app and{" "}
+        <span className="font-bold text-foreground">see who scrolls the least each week</span>.
       </p>
 
       <button
