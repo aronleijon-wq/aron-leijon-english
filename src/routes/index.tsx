@@ -314,7 +314,7 @@ function Index() {
       </section>
 
       {/* Screens */}
-      <section className="mt-20 -mx-5 overflow-x-auto px-5 pb-6 [scrollbar-width:none]">
+      <section className="mt-20 -mx-5 overflow-x-auto overflow-y-hidden px-5 pb-16 [scrollbar-width:none] [touch-action:pan-x_pan-y]">
         <div className="mx-auto flex w-max gap-5 sm:w-auto sm:justify-center">
           {screens.map(([name, alt], i) => (
             <Reveal key={name} delay={i * 120}>
