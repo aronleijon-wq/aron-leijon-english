@@ -259,12 +259,13 @@ function StepSessions() {
   );
 }
 
-/** The share of waking hours that 5 hours a day takes, filling up on screen. */
+/** The same life math as the app: 16 waking hours a day, counted from 18 until 90. */
 const PHONE_HOURS_A_DAY = 5;
 const WAKING_HOURS_A_DAY = 16;
-const LIFE_YEARS = 90;
+const FROM_AGE = 18;
+const UNTIL_AGE = 90;
 const PHONE_SHARE_OF_WAKING = Math.round((PHONE_HOURS_A_DAY / WAKING_HOURS_A_DAY) * 100); // 31%
-const PHONE_YEARS = (PHONE_HOURS_A_DAY / WAKING_HOURS_A_DAY) * (WAKING_HOURS_A_DAY / 24) * LIFE_YEARS; // 18.75 years
+const PHONE_YEARS = (PHONE_HOURS_A_DAY / WAKING_HOURS_A_DAY) * (UNTIL_AGE - FROM_AGE); // 22.5 years of waking life
 
 function LifeBar() {
   const [ref, value] = useCountUp<HTMLDivElement>(PHONE_SHARE_OF_WAKING, 2000);
@@ -342,9 +343,9 @@ function Index() {
       {/* The math */}
       <section className="pt-24 text-center">
         <Reveal>
-          <p className="text-lg font-bold text-muted-foreground">At 5 hours a day, most of us will spend</p>
-          <p className="mt-2 text-7xl font-black text-gradient sm:text-9xl"><CountUp to={PHONE_YEARS} decimals={2} /> years</p>
-          <p className="mt-3 text-lg text-muted-foreground">of our waking life looking at a phone. Paus helps you win some of it back.</p>
+          <p className="text-lg font-bold text-muted-foreground">At 5 hours a day, from {FROM_AGE} to {UNTIL_AGE}, you'll spend</p>
+          <p className="mt-2 text-7xl font-black text-gradient sm:text-9xl"><CountUp to={PHONE_YEARS} decimals={1} /> years</p>
+          <p className="mt-3 text-lg text-muted-foreground">of your waking life on your phone. Paus helps you win some of it back.</p>
           <LifeBar />
         </Reveal>
       </section>
