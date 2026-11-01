@@ -15,7 +15,7 @@ const faq = [
   ["How do I cancel Paus Pro?", "Settings > [your name] > Subscriptions > Paus Pro."],
   ["How do I delete my account and data?", "In the app: tap the profile button on the Home tab > your name (or My account) > Delete account and all data. To only leave the league: League tab > the profile button > Leave the league and remove my name."],
   ["How do I report an inappropriate nickname?", "Press and hold the name in the leaderboard and choose Report."],
-  ["Does Paus cost anything?", "The basic version is free. Paus Pro costs 29 SEK/month or 219 SEK/year in Sweden, with a 7-day free trial. The App Store shows the price for your country."],
+  ["Does Paus cost anything?", "The basic version is free. Paus Pro costs 29 SEK/month or 249 SEK/year in Sweden, with a 7-day free trial. The App Store shows the price for your country."],
   ["Is Paus on Android, or in my country?", "Paus is for iPhone, on iOS 17 or later. If it isn't in your country's App Store yet, join the newsletter on the home page and we'll email you the day it arrives."],
 ];
 
