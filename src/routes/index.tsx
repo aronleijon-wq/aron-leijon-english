@@ -260,8 +260,14 @@ function StepSessions() {
 }
 
 /** The share of waking hours that 5 hours a day takes, filling up on screen. */
+const PHONE_HOURS_A_DAY = 5;
+const WAKING_HOURS_A_DAY = 16;
+const LIFE_YEARS = 90;
+const PHONE_SHARE_OF_WAKING = Math.round((PHONE_HOURS_A_DAY / WAKING_HOURS_A_DAY) * 100); // 31%
+const PHONE_YEARS = (PHONE_HOURS_A_DAY / WAKING_HOURS_A_DAY) * (WAKING_HOURS_A_DAY / 24) * LIFE_YEARS; // 18.75 years
+
 function LifeBar() {
-  const [ref, value] = useCountUp<HTMLDivElement>(31, 2000);
+  const [ref, value] = useCountUp<HTMLDivElement>(PHONE_SHARE_OF_WAKING, 2000);
   return (
     <div ref={ref} className="mx-auto mt-10 max-w-xl text-left">
       <div className="flex justify-between gap-4 text-sm font-bold text-muted-foreground">
@@ -337,7 +343,7 @@ function Index() {
       <section className="pt-24 text-center">
         <Reveal>
           <p className="text-lg font-bold text-muted-foreground">At 5 hours a day, most of us will spend</p>
-          <p className="mt-2 text-7xl font-black text-gradient sm:text-9xl"><CountUp to={18.4} decimals={1} /> years</p>
+          <p className="mt-2 text-7xl font-black text-gradient sm:text-9xl"><CountUp to={PHONE_YEARS} decimals={2} /> years</p>
           <p className="mt-3 text-lg text-muted-foreground">of our waking life looking at a phone. Paus helps you win some of it back.</p>
           <LifeBar />
         </Reveal>
